@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Miusix",
+    "slug": "miusix",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#171714",
+    "primaryColor": "#f25f3a",
+    "platforms": ["ios", "android", "web"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ishuowang.miusix"
+    },
+    "android": {
+      "package": "com.ishuowang.miusix",
+      "adaptiveIcon": {
+        "backgroundColor": "#171714"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "name": "Miusix"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+.git
+.next
+.expo
+**/dist
+**/node_modules
+.env
+.env.*
+!.env.example
+storage/media/*
+*.log

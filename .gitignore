@@ -1,0 +1,15 @@
+node_modules/
+.next/
+.expo/
+dist/
+coverage/
+*.tsbuildinfo
+.DS_Store
+.env
+.env.*
+!.env.example
+apps/*/.env*
+!apps/*/.env.example
+storage/media/*
+!storage/media/.gitkeep
+.vercel

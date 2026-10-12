@@ -1,0 +1,23 @@
+{
+  "name": "miusix",
+  "version": "0.2.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace @miusix/web",
+    "dev:api": "npm run dev --workspace @miusix/api",
+    "dev:mobile": "npm run start --workspace @miusix/mobile",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
+}

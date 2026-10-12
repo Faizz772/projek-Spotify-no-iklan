@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build --workspace @miusix/web",
+  "outputDirectory": "apps/web/dist",
+  "rewrites": [
+    {
+      "source": "/ios",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ios/",
+      "destination": "/index.html"
+    }
+  ]
+}

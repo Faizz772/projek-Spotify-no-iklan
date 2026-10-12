@@ -559,8 +559,9 @@ export default function MusicApp({ initialTracks }: Props) {
   const [playlistTrack, setPlaylistTrack] = useState<Track | null>(null);
   const [queueOpen, setQueueOpen] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [volume, setVolume] = useState(0.7);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const synthRef = useRef<{ context: AudioContext; oscillators: OscillatorNode[] } | null>(null);
+  const synthRef = useRef<{ context: AudioContext; oscillators: OscillatorNode[]; gain: GainNode } | null>(null);
 
   const activeTrack = useMemo(
     () => tracks.find((track) => track.id === activeId) ?? tracks[0],
@@ -630,6 +631,11 @@ export default function MusicApp({ initialTracks }: Props) {
   }, [queueIds]);
 
   useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume;
+    if (synthRef.current) synthRef.current.gain.gain.value = 0.035 * volume;
+  }, [volume]);
+
+  useEffect(() => {
     const audio = new Audio();
     audio.preload = "none";
     audio.addEventListener("timeupdate", () => setElapsed(audio.currentTime));
@@ -675,7 +681,7 @@ export default function MusicApp({ initialTracks }: Props) {
       if (!synthRef.current) {
         const context = new AudioContext();
         const gain = context.createGain();
-        gain.gain.value = 0.035;
+        gain.gain.value = 0.035 * volume;
         gain.connect(context.destination);
         const seed = activeTrack.artwork.label.charCodeAt(0);
         const oscillators = [0, 7, 12].map((offset, index) => {
@@ -686,7 +692,7 @@ export default function MusicApp({ initialTracks }: Props) {
           oscillator.start();
           return oscillator;
         });
-        synthRef.current = { context, oscillators };
+        synthRef.current = { context, oscillators, gain };
       }
       return;
     }
@@ -872,10 +878,10 @@ export default function MusicApp({ initialTracks }: Props) {
       <aside className="studio-sidebar">
         <a className="studio-brand" href="#" aria-label="Miusix home"><span>M</span><strong>MIUSIX</strong></a>
         <nav>
-          <a className="is-active" href="#"><span>⌂</span>Home</a>
-          <a href="#discover"><span>⌕</span>Discover</a>
-          <a href="#library"><span>▤</span>Library</a>
-          <a href="#playlists"><span>♫</span>Playlists</a>
+          <a className="is-active" href="#" aria-current="page"><span aria-hidden="true">⌂</span>Home</a>
+          <a href="#discover"><span aria-hidden="true">⌕</span>Discover</a>
+          <a href="#library"><span aria-hidden="true">▤</span>Library</a>
+          <a href="#playlists"><span aria-hidden="true">♫</span>Playlists</a>
         </nav>
         <section className="studio-sidebar__playlists">
           <header><span>Your playlists</span><button type="button" onClick={() => document.getElementById("new-playlist-name")?.focus()}>＋</button></header>
@@ -890,9 +896,11 @@ export default function MusicApp({ initialTracks }: Props) {
       <section className="studio-main">
         <header className="studio-topbar">
           <form className="studio-search" onSubmit={search}>
-            <span>⌕</span>
+            <span aria-hidden="true">⌕</span>
             <input aria-label="Search music" placeholder="Search YouTube Music" value={query} onChange={(event) => setQuery(event.target.value)} />
-            <button type="submit">{searchStatus === "searching" ? "Searching…" : "Search"}</button>
+            <button type="submit" disabled={searchStatus === "searching"}>
+              {searchStatus === "searching" ? (<><span className="spinner" aria-hidden="true" /> Searching</>) : "Search"}
+            </button>
           </form>
           <div className="studio-topbar__actions">
             <ViewToggle value={viewMode} onChange={changeView} />
@@ -903,7 +911,12 @@ export default function MusicApp({ initialTracks }: Props) {
         <div className="studio-content">
           {(searchResults.length > 0 || localSearchResults.length > 0 || searchStatus !== "idle") && (
             <section className="studio-search-results" aria-live="polite">
-              <header><div><span className="studio-kicker">YouTube Music</span><h2>Search results</h2></div><span>{searchMessage}</span></header>
+              <header>
+                <div><span className="studio-kicker">YouTube Music</span><h2>Search results</h2></div>
+                <span role="status" aria-live="polite">
+                  {searchStatus === "importing" && <span className="spinner" aria-hidden="true" />} {searchMessage}
+                </span>
+              </header>
               {searchStatus === "error" && <p className="studio-error">{searchMessage}</p>}
               <div>
                 {localSearchResults.map((track) => (
@@ -1039,7 +1052,16 @@ export default function MusicApp({ initialTracks }: Props) {
         </div>
         <div className="studio-player-tools">
           <button type="button" onClick={() => setQueueOpen(true)}>Queue <b>{queueIds.length}</b></button>
-          <span>◖</span><input aria-label="Volume" type="range" defaultValue="68" />
+          <span aria-hidden="true">◖</span>
+          <input
+            aria-label="Volume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={(event) => setVolume(Number(event.target.value))}
+          />
         </div>
       </section>
 
